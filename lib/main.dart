@@ -455,7 +455,7 @@ class _RoomPageState extends State<RoomPage> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              SizedBox(height: 200, child: Text("Items: $itemsDisplay")),
+              SizedBox(height: 50, child: Text("Items: $itemsDisplay")),
               Expanded(
                   child: ListView.builder(
                       padding: const EdgeInsets.all(8),
@@ -496,7 +496,8 @@ class _RoomPageState extends State<RoomPage> {
                                 });
                               }),
                         );
-                      }))
+                      })),
+              SizedBox(height: 90)
             ],
           ),
         ));
