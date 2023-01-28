@@ -33,7 +33,7 @@ class RoomEntry extends HookConsumerWidget {
   }
 
   void toggleRoomStatus(WidgetRef ref) {
-    ref.watch(roomsProvider.notifier).toggleRoomStatus(roomId);
+    ref.read(roomsProvider.notifier).toggleRoomStatus(roomId);
   }
 
   void viewRoom(BuildContext context) {

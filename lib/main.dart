@@ -22,13 +22,12 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
 
   void loadFromFile() async {
     print("Room provider fetching rooms.");
-    // final result = await readRooms();
-    // if (result.isEmpty) {
-    //   state = List.from(seedRooms);
-    // } else {
-    //   state = List.from(result);
-    // }
-    state = List.from(seedRooms);
+    final result = await readRooms();
+    if (result.isEmpty) {
+      state = List.from(seedRooms);
+    } else {
+      state = List.from(result);
+    }
   }
 
   Room? getRoom(int roomId) {
@@ -55,6 +54,7 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
         else
           room.copyWith(presentItems: [...room.presentItems, item])
     ];
+    print(state.map((e) => e.presentItems.map((r) => r.name)));
     writeRooms(state);
   }
 
@@ -73,10 +73,10 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
     writeRooms(state);
   }
 
-  void clearRoom(Room room) {
+  void clearRoom(int roomId) {
     state = [
-      for (final c in state)
-        if (c == room) room.copyWith(presentItems: []) else c
+      for (final room in state)
+        if (room.id == roomId) room.copyWith(presentItems: []) else room
     ];
     writeRooms(state);
   }
@@ -104,14 +104,13 @@ class RoomItemNotifier extends StateNotifier<List<RoomItem>> {
 
   void loadFromFile() async {
     print("RoomItem provider fetching items.");
-    // final result = await readItems();
+    final result = await readItems();
 
-    // if (result.isEmpty) {
-    //   state = List.from(seedItems);
-    // } else {
-    //   state = List.from(result);
-    // }
-    state = List.from(seedItems);
+    if (result.isEmpty) {
+      state = List.from(seedItems);
+    } else {
+      state = List.from(result);
+    }
   }
 
   void addCustomRoomItem(RoomItem item) {

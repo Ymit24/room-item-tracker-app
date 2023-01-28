@@ -42,7 +42,7 @@ class RoomPage extends HookConsumerWidget {
             ),
         barrierDismissible: true);
     if (result != null) {
-      ref.watch(roomItemsProvider.notifier).addCustomRoomItem(result);
+      ref.read(roomItemsProvider.notifier).addCustomRoomItem(result);
     }
     print("Returned: $result");
   }
@@ -52,9 +52,9 @@ class RoomPage extends HookConsumerWidget {
     final controller = useTextEditingController();
     final allRoomItems = ref.watch(roomItemsProvider);
 
-    final room = ref
-        .watch(roomsProvider.notifier)
-        .getRoom(roomId)!; // NOTE: Will crash if null.
+    // NOTE: Will crash when room with given Id can't be found.
+    final room = ref.watch(roomsProvider).fold<Room?>(
+        null, (a, c) => a != null ? a : (c.id == roomId ? c : null))!;
 
     print(
         'Rebuilding room page for ${roomId}. Items: ${room.presentItems.length}');
@@ -115,7 +115,7 @@ class RoomPage extends HookConsumerWidget {
   }
 
   void checkItem(WidgetRef ref, bool isNowChecked, RoomItem item) {
-    final notifier = ref.watch(roomsProvider.notifier);
+    final notifier = ref.read(roomsProvider.notifier);
     if (isNowChecked) {
       notifier.addItemToRoom(roomId, item);
     } else {
@@ -123,11 +123,13 @@ class RoomPage extends HookConsumerWidget {
     }
   }
 
-  void clearRoom(WidgetRef ref) {}
+  void clearRoom(WidgetRef ref) {
+    ref.read(roomsProvider.notifier).clearRoom(roomId);
+  }
 
   void deleteItem(WidgetRef ref, RoomItem item) {
-    ref.watch(roomItemsProvider.notifier).removeItem(item);
+    ref.read(roomItemsProvider.notifier).removeItem(item);
 
-    ref.watch(roomsProvider.notifier).removeItemFromAllRooms(item);
+    ref.read(roomsProvider.notifier).removeItemFromAllRooms(item);
   }
 }

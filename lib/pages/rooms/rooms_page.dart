@@ -37,6 +37,6 @@ class RoomsPage extends HookConsumerWidget {
   }
 
   void clearAllRooms(WidgetRef ref) async {
-    ref.watch(roomsProvider.notifier).clearAllRooms();
+    ref.read(roomsProvider.notifier).clearAllRooms();
   }
 }
