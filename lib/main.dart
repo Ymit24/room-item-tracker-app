@@ -2,156 +2,141 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:room_item_tracker/models/room.dart';
+import 'package:room_item_tracker/models/room_item.dart';
+import 'package:room_item_tracker/models/seed_models.dart';
+import 'package:room_item_tracker/pages/rooms/rooms_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: RoomItemTrackerApp()));
 }
 
-class Room {
-  final String name;
-  bool status;
-  final List<RoomItem> presentItems;
+// NOTE: Removing these for providers.
+// final List<RoomItem> roomItems = <RoomItem>[];
+// final List<Room> rooms = <Room>[];
 
-  Room({required this.name, required this.status, required this.presentItems});
+class RoomsNotifier extends StateNotifier<List<Room>> {
+  RoomsNotifier() : super([]);
 
-  Room.fromJson(Map<String, dynamic> json)
-      : name = json['name'],
-        status = json['status'],
-        presentItems = (jsonDecode(json['presentItems']) as List)
-            .map((raw) => RoomItem.fromJson(raw))
-            .toList();
+  void loadFromFile() async {
+    print("Room provider fetching rooms.");
+    // final result = await readRooms();
+    // if (result.isEmpty) {
+    //   state = List.from(seedRooms);
+    // } else {
+    //   state = List.from(result);
+    // }
+    state = List.from(seedRooms);
+  }
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'status': status,
-        'presentItems': jsonEncode(presentItems),
-      };
+  Room? getRoom(int roomId) {
+    for (final room in state) {
+      if (room.id == roomId) return room;
+    }
+    return null;
+  }
+
+  void toggleRoomStatus(int roomId) {
+    state = [
+      for (final room in state)
+        if (room.id == roomId) room.copyWith(status: !room.status) else room
+    ];
+    writeRooms(state);
+  }
+
+  void addItemToRoom(int roomId, RoomItem item) {
+    print("adding item to room");
+    state = [
+      for (final room in state)
+        if (room.id != roomId)
+          room
+        else
+          room.copyWith(presentItems: [...room.presentItems, item])
+    ];
+    writeRooms(state);
+  }
+
+  void removeItemFromRoom(int roomId, RoomItem item) {
+    print("removing item to room");
+    state = [
+      for (final room in state)
+        if (room.id != roomId)
+          room
+        else
+          room.copyWith(presentItems: [
+            for (final it in room.presentItems)
+              if (it != item) it
+          ])
+    ];
+    writeRooms(state);
+  }
+
+  void clearRoom(Room room) {
+    state = [
+      for (final c in state)
+        if (c == room) room.copyWith(presentItems: []) else c
+    ];
+    writeRooms(state);
+  }
+
+  void clearAllRooms() {
+    state = [for (final room in state) room.copyWith(presentItems: [])];
+    writeRooms(state);
+  }
+
+  void removeItemFromAllRooms(RoomItem item) {
+    state = [
+      for (final room in state)
+        if (room.presentItems.contains(item))
+          room.copyWith(presentItems: [
+            for (final it in room.presentItems)
+              if (it != item) it
+          ])
+    ];
+    writeRooms(state);
+  }
 }
 
-class RoomItem {
-  final String name;
+class RoomItemNotifier extends StateNotifier<List<RoomItem>> {
+  RoomItemNotifier() : super([]);
 
-  RoomItem({required this.name});
+  void loadFromFile() async {
+    print("RoomItem provider fetching items.");
+    // final result = await readItems();
 
-  RoomItem.fromJson(Map<String, dynamic> json) : name = json['name'];
-  Map<String, dynamic> toJson() => {'name': name};
+    // if (result.isEmpty) {
+    //   state = List.from(seedItems);
+    // } else {
+    //   state = List.from(result);
+    // }
+    state = List.from(seedItems);
+  }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is RoomItem && name == other.name;
+  void addCustomRoomItem(RoomItem item) {
+    final nextItemId = state.fold(0, (max, e) => e.id > max ? e.id + 1 : max);
+    state = [...state, item.copyWith(id: nextItemId)];
+    writeItems(state);
+  }
 
-  @override
-  int get hashCode => name.hashCode;
+  void removeItem(RoomItem item) {
+    state = [
+      for (final it in state)
+        if (it != item) it
+    ];
+    writeItems(state);
+  }
 }
 
-final List<RoomItem> roomItems = <RoomItem>[];
-final List<Room> rooms = <Room>[];
+final roomsProvider = StateNotifierProvider<RoomsNotifier, List<Room>>((ref) {
+  return RoomsNotifier();
+});
 
-final List<Room> seedRooms = <Room>[
-  Room(name: "Room 1", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 2", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 2a", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 3", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 3a", presentItems: <RoomItem>[], status: false),
-  Room(name: "Robot Room", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 4", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 5", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 6", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 7", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 8", presentItems: <RoomItem>[], status: false),
-  Room(name: "Vascular Suite", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 9", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 10", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 11", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 12", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 14", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 15", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 16", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 17", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 18", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 19", presentItems: <RoomItem>[], status: false),
-  Room(name: "Room 20", presentItems: <RoomItem>[], status: false),
-  Room(
-      name: "Neuro Interventional Radiology",
-      presentItems: <RoomItem>[],
-      status: false),
-  Room(name: "Cardiac Cath Lab", presentItems: <RoomItem>[], status: false),
-  Room(name: "Burn Surgery Suite", presentItems: <RoomItem>[], status: false),
-];
-
-final List<RoomItem> seedItems = <RoomItem>[
-  RoomItem(name: "ABG"),
-  RoomItem(name: "14G"),
-  RoomItem(name: "16G"),
-  RoomItem(name: "18G"),
-  RoomItem(name: "20G"),
-  RoomItem(name: "22G"),
-  RoomItem(name: "24G"),
-  RoomItem(name: "25G"),
-  RoomItem(name: "3cc"),
-  RoomItem(name: "5cc"),
-  RoomItem(name: "10cc"),
-  RoomItem(name: "20cc"),
-  RoomItem(name: "26cc"),
-  RoomItem(name: "Art"),
-  RoomItem(name: "Large TD"),
-  RoomItem(name: "Small TD"),
-  RoomItem(name: "Vamp"),
-  RoomItem(name: "1L ISO"),
-  RoomItem(name: "2L ISO"),
-  RoomItem(name: "3L ISO"),
-  RoomItem(name: "4L ISO"),
-  RoomItem(name: "5L ISO"),
-  RoomItem(name: "1L NS"),
-  RoomItem(name: "2L NS"),
-  RoomItem(name: "3L NS"),
-  RoomItem(name: "4L NS"),
-  RoomItem(name: "5L NS"),
-  RoomItem(name: "500cc NS"),
-  RoomItem(name: "2 500cc NS"),
-  RoomItem(name: "250cc NS"),
-  RoomItem(name: "50cc NS"),
-  RoomItem(name: "100CC NS"),
-  RoomItem(name: "Insulin Syringe"),
-  RoomItem(name: "gravity"),
-  RoomItem(name: "35"),
-  RoomItem(name: "hotline"),
-  RoomItem(name: "caresite"),
-  RoomItem(name: "secondary"),
-  RoomItem(name: "60"),
-  RoomItem(name: "16 OG"),
-  RoomItem(name: "18 OG"),
-  RoomItem(name: "6 ET"),
-  RoomItem(name: "6.5 ET"),
-  RoomItem(name: "7 ET"),
-  RoomItem(name: "7.5 ET"),
-  RoomItem(name: "8 ET"),
-  RoomItem(name: "8.5 ET"),
-  RoomItem(name: "alcohol"),
-  RoomItem(name: "flushes"),
-  RoomItem(name: "heplocks"),
-  RoomItem(name: "EKG"),
-  RoomItem(name: "44"),
-  RoomItem(name: "white pads"),
-  RoomItem(name: "bio patches"),
-  RoomItem(name: "sutures"),
-  RoomItem(name: "MAC 3"),
-  RoomItem(name: "MAC 4"),
-  RoomItem(name: "Medium"),
-  RoomItem(name: "Pediatric"),
-  RoomItem(name: "Miller 2"),
-  RoomItem(name: "Miller 3"),
-  RoomItem(name: "tongue"),
-  RoomItem(name: "stylets"),
-  RoomItem(name: "Esophageal"),
-  RoomItem(name: "Masks"),
-  RoomItem(name: "Salters"),
-  RoomItem(name: "Setup"),
-  RoomItem(name: "Oxygen"),
-  RoomItem(name: "Pump"),
-  RoomItem(name: "Warmer"),
-];
+final roomItemsProvider =
+    StateNotifierProvider<RoomItemNotifier, List<RoomItem>>((ref) {
+  return RoomItemNotifier();
+});
 
 Future<String> get _localPath async {
   final directory = await getApplicationDocumentsDirectory();
@@ -169,7 +154,7 @@ Future<File> get _itemsFile async {
   return File('$path/items.json');
 }
 
-Future<File> writeRooms() async {
+Future<File> writeRooms(List<Room> rooms) async {
   print("Writing rooms");
   final file = await _roomsFile;
 
@@ -178,7 +163,7 @@ Future<File> writeRooms() async {
   return file.writeAsString(json.encode(map));
 }
 
-Future<File> writeItems() async {
+Future<File> writeItems(List<RoomItem> roomItems) async {
   print("Writing items");
   final file = await _itemsFile;
   Map<String, dynamic> map = {
@@ -222,284 +207,27 @@ Future<List<Room>> readRooms() async {
   return roomsDecoded;
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class RoomItemTrackerApp extends HookConsumerWidget {
+  const RoomItemTrackerApp({super.key});
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    loadDataFromFile(ref);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Item Room Tracker'),
+      home: const RoomsPage(),
     );
   }
-}
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  void initState() {
-    super.initState();
-    readRooms().then((result) {
-      setState(() {
-        if (result.isEmpty) {
-          rooms.addAll(seedRooms);
-          writeRooms();
-        } else {
-          rooms.clear();
-          rooms.addAll(result);
-        }
-
-        print("Read Results: ${result.map((e) => e.toJson()).toList()}");
-      });
+  void loadDataFromFile(WidgetRef ref) async {
+    await Future.delayed(const Duration(milliseconds: 10), () {
+      ref.watch(roomsProvider.notifier).loadFromFile();
+      ref.watch(roomItemsProvider.notifier).loadFromFile();
     });
-
-    readItems().then((result) {
-      setState(() {
-        if (result.isEmpty) {
-          roomItems.addAll(seedItems);
-          writeItems();
-        } else {
-          roomItems.clear();
-          roomItems.addAll(result);
-        }
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  for (var room in rooms) {
-                    room.presentItems.clear();
-                    room.status = false;
-                  }
-                  writeRooms();
-                });
-              },
-              child: const Text("Clear All Rooms"))
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: rooms.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final room = rooms[index];
-                    return RoomEntry(room: room);
-                  }),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class RoomEntry extends StatefulWidget {
-  const RoomEntry({super.key, required this.room});
-
-  final Room room;
-
-  @override
-  State<RoomEntry> createState() => _RoomEntryState();
-}
-
-class _RoomEntryState extends State<RoomEntry> {
-  @override
-  Widget build(BuildContext context) {
-    final room = widget.room;
-    return ListTile(
-      title: Text(room.name),
-      leading: ElevatedButton(
-        child: null,
-        style: ElevatedButton.styleFrom(
-          shape: const CircleBorder(),
-          backgroundColor: room.status ? Colors.green : Colors.red,
-        ),
-        onPressed: () {
-          setState(() {
-            room.status = !room.status;
-            writeRooms();
-          });
-        },
-      ),
-      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-        ElevatedButton(
-            onPressed: () {
-              viewRoom(context);
-            },
-            child: const Text("View")),
-      ]),
-    );
-  }
-
-  void viewRoom(BuildContext context) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => RoomPage(room: widget.room)));
-  }
-}
-
-class RoomPage extends StatefulWidget {
-  const RoomPage({super.key, required this.room});
-
-  final Room room;
-
-  @override
-  State<RoomPage> createState() => _RoomPageState();
-}
-
-class _RoomPageState extends State<RoomPage> {
-  late TextEditingController controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    print(
-        "Rebuilding room page for ${widget.room.name}. Items: ${widget.room.presentItems.length}");
-    final sortedItems = List.from(widget.room.presentItems);
-    sortedItems.sort((a, b) => a.name.compareTo(b.name));
-    final itemsDisplay =
-        sortedItems.fold("", (a, b) => "$a${a.isEmpty ? "" : ", "}${b.name}");
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.room.name),
-          actions: [
-            ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    widget.room.presentItems.clear();
-                    writeRooms();
-                  });
-                },
-                child: const Text("Clear"))
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            final result = await showDialog(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                      title: const Text("Create Item"),
-                      content: TextField(
-                          controller: controller,
-                          decoration: const InputDecoration(
-                              hintText: "Enter Item Name")),
-                      actions: [
-                        ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(ctx).pop(null);
-                              controller.clear();
-                            },
-                            child: const Text("Cancel")),
-                        ElevatedButton(
-                            onPressed: () {
-                              if (controller.text.isEmpty) {
-                                Navigator.of(ctx).pop(null);
-                              } else {
-                                Navigator.of(ctx)
-                                    .pop(RoomItem(name: controller.text));
-                              }
-                              controller.clear();
-                            },
-                            child: const Text("Create"))
-                      ],
-                    ),
-                barrierDismissible: true);
-            if (result != null) {
-              setState(() {
-                roomItems.add(result);
-                writeItems();
-              });
-            }
-            print("Returned: $result");
-          },
-          tooltip: 'Add Custom Item',
-          child: const Icon(Icons.add),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              SizedBox(height: 50, child: Text("Items: $itemsDisplay")),
-              Expanded(
-                  child: ListView.builder(
-                      padding: const EdgeInsets.all(8),
-                      itemCount: roomItems.length,
-                      itemBuilder: (context, index) {
-                        final item = roomItems[index];
-                        return ListTile(
-                          title: Text(item.name),
-                          leading: ElevatedButton(
-                            child: Icon(Icons.delete, color: Colors.white),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                roomItems.remove(item);
-                                writeItems();
-
-                                for (var room in rooms) {
-                                  if (room.presentItems.contains(item)) {
-                                    room.presentItems.remove(item);
-                                  }
-                                }
-                                writeRooms();
-                              });
-                            },
-                          ),
-                          trailing: Checkbox(
-                              value: widget.room.presentItems.contains(item),
-                              onChanged: (isNowChecked) {
-                                setState(() {
-                                  if (isNowChecked ?? false) {
-                                    widget.room.presentItems.add(item);
-                                  } else {
-                                    widget.room.presentItems.remove(item);
-                                  }
-                                  writeRooms();
-                                });
-                              }),
-                        );
-                      })),
-              SizedBox(height: 90)
-            ],
-          ),
-        ));
   }
 }
