@@ -5,6 +5,19 @@ import 'package:room_item_tracker/main.dart';
 import 'package:room_item_tracker/models/room.dart';
 import 'package:room_item_tracker/models/room_item.dart';
 
+/*
+ * Find the room using an Id. Will update when the rooms update.
+ */
+final currentRoomProvider = Provider.family<Room?, int>((ref, roomId) {
+  final rooms = ref.watch(roomsProvider);
+  for (final room in rooms) {
+    if (room.id == roomId) {
+      return room;
+    }
+  }
+  return null;
+});
+
 class RoomPage extends HookConsumerWidget {
   final int roomId;
 
@@ -44,7 +57,6 @@ class RoomPage extends HookConsumerWidget {
     if (result != null) {
       ref.read(roomItemsProvider.notifier).addCustomRoomItem(result);
     }
-    print("Returned: $result");
   }
 
   @override
@@ -52,12 +64,7 @@ class RoomPage extends HookConsumerWidget {
     final controller = useTextEditingController();
     final allRoomItems = ref.watch(roomItemsProvider);
 
-    // NOTE: Will crash when room with given Id can't be found.
-    final room = ref.watch(roomsProvider).fold<Room?>(
-        null, (a, c) => a != null ? a : (c.id == roomId ? c : null))!;
-
-    print(
-        'Rebuilding room page for ${roomId}. Items: ${room.presentItems.length}');
+    final room = ref.watch(currentRoomProvider(roomId))!;
 
     final sortedItems = List.from(room.presentItems);
     sortedItems.sort((a, b) => a.name.compareTo(b.name));

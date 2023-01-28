@@ -13,15 +13,10 @@ void main() {
   runApp(const ProviderScope(child: RoomItemTrackerApp()));
 }
 
-// NOTE: Removing these for providers.
-// final List<RoomItem> roomItems = <RoomItem>[];
-// final List<Room> rooms = <Room>[];
-
 class RoomsNotifier extends StateNotifier<List<Room>> {
   RoomsNotifier() : super([]);
 
   void loadFromFile() async {
-    print("Room provider fetching rooms.");
     final result = await readRooms();
     if (result.isEmpty) {
       state = List.from(seedRooms);
@@ -46,7 +41,6 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
   }
 
   void addItemToRoom(int roomId, RoomItem item) {
-    print("adding item to room");
     state = [
       for (final room in state)
         if (room.id != roomId)
@@ -54,12 +48,10 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
         else
           room.copyWith(presentItems: [...room.presentItems, item])
     ];
-    print(state.map((e) => e.presentItems.map((r) => r.name)));
     writeRooms(state);
   }
 
   void removeItemFromRoom(int roomId, RoomItem item) {
-    print("removing item to room");
     state = [
       for (final room in state)
         if (room.id != roomId)
@@ -103,7 +95,6 @@ class RoomItemNotifier extends StateNotifier<List<RoomItem>> {
   RoomItemNotifier() : super([]);
 
   void loadFromFile() async {
-    print("RoomItem provider fetching items.");
     final result = await readItems();
 
     if (result.isEmpty) {
@@ -154,7 +145,6 @@ Future<File> get _itemsFile async {
 }
 
 Future<File> writeRooms(List<Room> rooms) async {
-  print("Writing rooms");
   final file = await _roomsFile;
 
   Map<String, dynamic> map = {'rooms': rooms.map((e) => e.toJson()).toList()};
@@ -163,7 +153,6 @@ Future<File> writeRooms(List<Room> rooms) async {
 }
 
 Future<File> writeItems(List<RoomItem> roomItems) async {
-  print("Writing items");
   final file = await _itemsFile;
   Map<String, dynamic> map = {
     'items': roomItems.map((e) => e.toJson()).toList()
