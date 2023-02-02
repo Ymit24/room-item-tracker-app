@@ -86,6 +86,8 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
             for (final it in room.presentItems)
               if (it != item) it
           ])
+        else
+          room
     ];
     writeRooms(state);
   }

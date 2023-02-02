@@ -64,7 +64,14 @@ class RoomPage extends HookConsumerWidget {
     final controller = useTextEditingController();
     final allRoomItems = ref.watch(roomItemsProvider);
 
-    final room = ref.watch(currentRoomProvider(roomId))!;
+    final roomResult = ref.watch(currentRoomProvider(roomId));
+    if (roomResult == null) {
+      return Scaffold(
+          appBar: AppBar(title: Text("Failed to load Room.")),
+          body: Center(child: Text("Failed to load Room.")));
+    }
+
+    final room = roomResult;
 
     final sortedItems = List.from(room.presentItems);
     sortedItems.sort((a, b) => a.name.compareTo(b.name));
