@@ -74,7 +74,9 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
   }
 
   void clearAllRooms() {
-    state = [for (final room in state) room.copyWith(presentItems: [])];
+    state = [
+      for (final room in state) room.copyWith(presentItems: [], status: false)
+    ];
     writeRooms(state);
   }
 
