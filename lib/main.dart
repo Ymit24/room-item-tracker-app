@@ -144,7 +144,7 @@ class RoomItemTrackerApp extends HookConsumerWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(primarySwatch: Colors.blue, brightness: Brightness.dark),
-      home: SafeArea(child: const RoomsPage()),
+      home: const SafeArea(child: RoomsPage()),
     );
   }
 
