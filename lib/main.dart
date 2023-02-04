@@ -35,7 +35,10 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
   void toggleRoomStatus(int roomId) {
     state = [
       for (final room in state)
-        if (room.id == roomId) room.copyWith(status: !room.status) else room
+        if (room.id == roomId)
+          room.copyWith(status: room.status.nextToggleState())
+        else
+          room
     ];
     writeRooms(state);
   }
@@ -75,7 +78,8 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
 
   void clearAllRooms() {
     state = [
-      for (final room in state) room.copyWith(presentItems: [], status: false)
+      for (final room in state)
+        room.copyWith(presentItems: [], status: RoomStatus.Unknown)
     ];
     writeRooms(state);
   }

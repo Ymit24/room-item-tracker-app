@@ -12,13 +12,18 @@ class RoomEntry extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final room = ref.watch(roomsProvider.notifier).getRoom(roomId)!;
+    var statusColor = room.status == RoomStatus.Checked
+        ? Colors.green
+        : room.status == RoomStatus.Unchecked
+            ? Colors.red
+            : Colors.grey;
     return ListTile(
       title: Text(room.name),
       leading: ElevatedButton(
         child: null,
         style: ElevatedButton.styleFrom(
           shape: const CircleBorder(),
-          backgroundColor: room.status ? Colors.green : Colors.red,
+          backgroundColor: statusColor,
         ),
         onPressed: () => toggleRoomStatus(ref),
       ),
