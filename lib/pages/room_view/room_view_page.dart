@@ -104,7 +104,7 @@ class RoomPage extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Selected",
+                    "Room Items",
                     style: TextStyle(fontSize: 22),
                   ),
                   Expanded(
