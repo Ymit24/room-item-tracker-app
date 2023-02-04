@@ -1,9 +1,6 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:room_item_tracker/fileio.dart';
 import 'package:room_item_tracker/models/room.dart';
 import 'package:room_item_tracker/models/room_item.dart';
 import 'package:room_item_tracker/models/seed_models.dart';
@@ -106,7 +103,7 @@ class RoomItemNotifier extends StateNotifier<List<RoomItem>> {
     final result = await readItems();
 
     if (result.isEmpty) {
-      state = List.from(seedItems);
+      state = List.from(await readSeedItems());
     } else {
       state = List.from(result);
     }
@@ -135,73 +132,6 @@ final roomItemsProvider =
     StateNotifierProvider<RoomItemNotifier, List<RoomItem>>((ref) {
   return RoomItemNotifier();
 });
-
-Future<String> get _localPath async {
-  final directory = await getApplicationDocumentsDirectory();
-
-  return directory.path;
-}
-
-Future<File> get _roomsFile async {
-  final path = await _localPath;
-  return File('$path/rooms.json');
-}
-
-Future<File> get _itemsFile async {
-  final path = await _localPath;
-  return File('$path/items.json');
-}
-
-Future<File> writeRooms(List<Room> rooms) async {
-  final file = await _roomsFile;
-
-  Map<String, dynamic> map = {'rooms': rooms.map((e) => e.toJson()).toList()};
-
-  return file.writeAsString(json.encode(map));
-}
-
-Future<File> writeItems(List<RoomItem> roomItems) async {
-  final file = await _itemsFile;
-  Map<String, dynamic> map = {
-    'items': roomItems.map((e) => e.toJson()).toList()
-  };
-  return file.writeAsString(json.encode(map));
-}
-
-Future<List<RoomItem>> readItems() async {
-  final items = <RoomItem>[];
-  try {
-    final file = await _itemsFile;
-    final contents = await file.readAsString();
-
-    final jsonData = jsonDecode(contents);
-
-    for (var item in jsonData['items']) {
-      items.add(RoomItem.fromJson(item));
-    }
-  } catch (e) {
-    print(e);
-  }
-  return items;
-}
-
-Future<List<Room>> readRooms() async {
-  final roomsDecoded = <Room>[];
-  try {
-    final file = await _roomsFile;
-
-    // Read the file
-    final contents = await file.readAsString();
-
-    final jsonData = jsonDecode(contents);
-    for (var room in jsonData['rooms']) {
-      roomsDecoded.add(Room.fromJson(room));
-    }
-  } catch (e) {
-    print(e);
-  }
-  return roomsDecoded;
-}
 
 class RoomItemTrackerApp extends HookConsumerWidget {
   const RoomItemTrackerApp({super.key});
