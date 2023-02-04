@@ -65,6 +65,7 @@ class RoomPage extends HookConsumerWidget {
     final allRoomItems = ref.watch(roomItemsProvider);
 
     final roomResult = ref.watch(currentRoomProvider(roomId));
+
     if (roomResult == null) {
       return Scaffold(
           appBar: AppBar(title: Text("Failed to load Room.")),
@@ -73,11 +74,8 @@ class RoomPage extends HookConsumerWidget {
 
     final room = roomResult;
 
-    final sortedItems = List.from(room.presentItems);
-    sortedItems.sort((a, b) => a.name.compareTo(b.name));
-
-    final itemsDisplay =
-        sortedItems.fold("", (a, b) => "$a${a.isEmpty ? "" : ", "}${b.name}");
+    final itemsDisplay = room.presentItems
+        .fold("", (a, b) => "$a${a.isEmpty ? "" : ", "}${b.name}");
 
     return Scaffold(
         appBar: AppBar(
@@ -96,26 +94,41 @@ class RoomPage extends HookConsumerWidget {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              SizedBox(height: 50, child: Text("Items: $itemsDisplay")),
+              SizedBox(
+                  height: 150,
+                  child: Text("Items: $itemsDisplay",
+                      style: TextStyle(fontSize: 22),
+                      textAlign: TextAlign.left)),
               Expanded(
-                  child: ListView.builder(
-                      padding: const EdgeInsets.all(8),
-                      itemCount: allRoomItems.length,
-                      itemBuilder: (context, index) {
-                        final item = allRoomItems[index];
-                        return ListTile(
-                          title: Text(item.name),
-                          leading: ElevatedButton(
-                            child: Icon(Icons.delete, color: Colors.white),
-                            style: buildStyleFrom(),
-                            onPressed: () => deleteItem(ref, item),
-                          ),
-                          trailing: Checkbox(
-                              value: room.presentItems.contains(item),
-                              onChanged: (isNowChecked) =>
-                                  checkItem(ref, isNowChecked ?? false, item)),
-                        );
-                      })),
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Selected",
+                    style: TextStyle(fontSize: 22),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                        padding: const EdgeInsets.all(8),
+                        itemCount: allRoomItems.length,
+                        itemBuilder: (context, index) {
+                          final item = allRoomItems[index];
+                          return ListTile(
+                            title: Text(item.name),
+                            leading: ElevatedButton(
+                              child: Icon(Icons.delete, color: Colors.white),
+                              style: buildStyleFrom(),
+                              onPressed: () => deleteItem(ref, item),
+                            ),
+                            trailing: Checkbox(
+                                value: room.presentItems.contains(item),
+                                onChanged: (isNowChecked) => checkItem(
+                                    ref, isNowChecked ?? false, item)),
+                          );
+                        }),
+                  ),
+                ],
+              )),
               SizedBox(height: 90)
             ],
           ),
