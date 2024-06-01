@@ -1,5 +1,13 @@
+import 'package:hive_flutter/adapters.dart';
+
+part 'room_item.g.dart';
+
+@HiveType(typeId: 1)
 class RoomItem {
+  @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final String name;
 
   RoomItem({required this.id, required this.name});

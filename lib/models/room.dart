@@ -1,8 +1,18 @@
 import 'dart:convert';
-
+import 'package:hive_flutter/adapters.dart';
 import 'room_item.dart';
 
-enum RoomStatus { Checked, Unchecked, Unknown }
+part 'room.g.dart';
+
+@HiveType(typeId: 2)
+enum RoomStatus {
+  @HiveField(0)
+  Checked,
+  @HiveField(1)
+  Unchecked,
+  @HiveField(2)
+  Unknown
+}
 
 extension RoomStatusExt on RoomStatus {
   RoomStatus nextToggleState() {
@@ -19,10 +29,18 @@ extension RoomStatusExt on RoomStatus {
   }
 }
 
+@HiveType(typeId: 0)
 class Room {
+  @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final String name;
+
+  @HiveField(2)
   RoomStatus status;
+
+  @HiveField(3)
   final List<RoomItem> presentItems;
 
   Room({
