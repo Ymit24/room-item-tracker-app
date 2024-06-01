@@ -1,6 +1,6 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=/home/christian/snap/flutter/common/flutter
-FLUTTER_APPLICATION_PATH=/home/christian/dev/flutter/room_item_tracker
+FLUTTER_ROOT=/usr/bin/flutter
+FLUTTER_APPLICATION_PATH=/home/christian/dev/room-item-tracker-app
 COCOAPODS_PARALLEL_CODE_SIGN=true
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=1.0.0
