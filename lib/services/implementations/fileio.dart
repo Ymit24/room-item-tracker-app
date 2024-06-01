@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:room_item_tracker/models/room.dart';
 import 'package:room_item_tracker/models/room_item.dart';
@@ -37,21 +36,6 @@ class FileBasedRoomStorageService extends RoomStorageService {
 
       for (var item in jsonData['items']) {
         items.add(RoomItem.fromJson(item));
-      }
-    } catch (e) {
-      print(e);
-    }
-    return items;
-  }
-
-  @override
-  Future<List<RoomItem>> readSeedItems() async {
-    final items = <RoomItem>[];
-    var itemId = 0;
-    try {
-      final lines = await rootBundle.loadString('assets/data/seedItems.csv');
-      for (var line in lines.split("\n")) {
-        items.add(RoomItem(id: itemId++, name: line));
       }
     } catch (e) {
       print(e);

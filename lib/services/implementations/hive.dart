@@ -1,39 +1,45 @@
-import 'dart:io';
-
 import 'package:hive/hive.dart';
 import 'package:room_item_tracker/models/room.dart';
 import 'package:room_item_tracker/models/room_item.dart';
 import 'package:room_item_tracker/services/storage.dart';
 
+const _boxNameForRooms = 'rooms';
+const _boxNameForRoomItems = 'items';
+
 class HiveBasedStorageService extends RoomStorageService {
   @override
-  Future<List<RoomItem>> readItems() {
-    // TODO: implement readItems
-    throw UnimplementedError();
+  Future<List<RoomItem>> readItems() async {
+    var roomsBox = Hive.box<RoomItem>(_boxNameForRoomItems);
+    final itemsById = roomsBox.toMap();
+
+    return itemsById.values.toList();
   }
 
   @override
-  Future<List<Room>> readRooms() {
-    var roomsBox = Hive.box<Room>('rooms');
+  Future<List<Room>> readRooms() async {
+    var roomsBox = Hive.box<Room>(_boxNameForRooms);
     final roomsById = roomsBox.toMap();
 
-    return Future.value(roomsById.values.toList());
+    return roomsById.values.toList();
   }
 
   @override
-  Future<List<RoomItem>> readSeedItems() {
-    // TODO: implement readSeedItems
-    throw UnimplementedError();
+  Future<void> writeItems(List<RoomItem> roomItems) async {
+    final roomItemsBox = Hive.box<RoomItem>(_boxNameForRoomItems);
+    roomItemsBox.clear();
+
+    for (final roomItem in roomItems) {
+      roomItemsBox.put(roomItem.id, roomItem);
+    }
   }
 
   @override
-  Future<void> writeItems(List<RoomItem> roomItems) {
-    // TODO: implement writeItems
-    throw UnimplementedError();
-  }
+  Future<void> writeRooms(List<Room> rooms) async {
+    final roomsBox = Hive.box<Room>(_boxNameForRooms);
+    roomsBox.clear();
 
-  @override
-  Future<void> writeRooms(List<Room> rooms) {
-    throw UnimplementedError();
+    for (final room in rooms) {
+      roomsBox.put(room.id, room);
+    }
   }
 }

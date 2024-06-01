@@ -14,9 +14,6 @@ abstract class RoomStorageService {
   /// Read list of all items from storage.
   Future<List<RoomItem>> readItems();
 
-  /// Read initial list of seed items from storage.
-  Future<List<RoomItem>> readSeedItems();
-
   /// Read rooms from storage.
   Future<List<Room>> readRooms();
 }

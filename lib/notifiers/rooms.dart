@@ -1,9 +1,9 @@
 import 'package:room_item_tracker/models/seed_models.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:room_item_tracker/injection.dart';
 import 'package:room_item_tracker/models/room.dart';
 import 'package:room_item_tracker/models/room_item.dart';
 import 'package:room_item_tracker/services/storage.dart';
+import 'package:room_item_tracker/utils/injection.dart';
 
 class RoomsNotifier extends StateNotifier<List<Room>> {
   final _storageService = locator.get<RoomStorageService>();

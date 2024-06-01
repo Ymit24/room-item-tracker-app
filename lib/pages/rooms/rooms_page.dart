@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:room_item_tracker/pages/rooms/widgets/room_entry.dart';
-import 'package:room_item_tracker/providers.dart';
+import 'package:room_item_tracker/utils/providers.dart';
 
 class RoomsPage extends HookConsumerWidget {
   const RoomsPage({super.key});

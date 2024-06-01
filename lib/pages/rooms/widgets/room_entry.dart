@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:room_item_tracker/models/room.dart';
 import 'package:room_item_tracker/pages/room_view/room_view_page.dart';
-import 'package:room_item_tracker/providers.dart';
+import 'package:room_item_tracker/utils/providers.dart';
 
 class RoomEntry extends HookConsumerWidget {
   final int roomId;

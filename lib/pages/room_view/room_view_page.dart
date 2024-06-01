@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:room_item_tracker/models/room.dart';
 import 'package:room_item_tracker/models/room_item.dart';
-import 'package:room_item_tracker/providers.dart';
+import 'package:room_item_tracker/utils/providers.dart';
 
 /*
  * Find the room using an Id. Will update when the rooms update.

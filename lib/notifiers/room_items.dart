@@ -1,7 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:room_item_tracker/injection.dart';
 import 'package:room_item_tracker/models/room_item.dart';
 import 'package:room_item_tracker/services/storage.dart';
+import 'package:room_item_tracker/utils/injection.dart';
+import 'package:room_item_tracker/utils/seed_items.dart';
 
 class RoomItemNotifier extends StateNotifier<List<RoomItem>> {
   final _storageService = locator.get<RoomStorageService>();
@@ -11,7 +12,7 @@ class RoomItemNotifier extends StateNotifier<List<RoomItem>> {
     final result = await _storageService.readItems();
 
     if (result.isEmpty) {
-      state = List.from(await _storageService.readSeedItems());
+      state = List.from(await readSeedItems());
     } else {
       state = List.from(result);
     }
