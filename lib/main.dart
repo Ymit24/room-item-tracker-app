@@ -29,7 +29,7 @@ class RoomItemTrackerApp extends HookConsumerWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Room Item Tracker',
       theme: ThemeData(primarySwatch: Colors.blue, brightness: Brightness.dark),
       home: const SafeArea(child: RoomsPage()),
     );
