@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:room_item_tracker/main.dart';
 import 'package:room_item_tracker/models/room.dart';
 import 'package:room_item_tracker/models/room_item.dart';
+import 'package:room_item_tracker/providers.dart';
 
 /*
  * Find the room using an Id. Will update when the rooms update.
@@ -68,8 +68,8 @@ class RoomPage extends HookConsumerWidget {
 
     if (roomResult == null) {
       return Scaffold(
-          appBar: AppBar(title: Text("Failed to load Room.")),
-          body: Center(child: Text("Failed to load Room.")));
+          appBar: AppBar(title: const Text("Failed to load Room.")),
+          body: const Center(child: Text("Failed to load Room.")));
     }
 
     final room = roomResult;
@@ -97,13 +97,13 @@ class RoomPage extends HookConsumerWidget {
               SizedBox(
                   height: 150,
                   child: Text("Items: $itemsDisplay",
-                      style: TextStyle(fontSize: 22),
+                      style: const TextStyle(fontSize: 22),
                       textAlign: TextAlign.left)),
               Expanded(
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "Room Items",
                     style: TextStyle(fontSize: 22),
                   ),
@@ -116,9 +116,10 @@ class RoomPage extends HookConsumerWidget {
                           return ListTile(
                             title: Text(item.name),
                             leading: ElevatedButton(
-                              child: Icon(Icons.delete, color: Colors.white),
                               style: buildStyleFrom(),
                               onPressed: () => deleteItem(ref, item),
+                              child:
+                                  const Icon(Icons.delete, color: Colors.white),
                             ),
                             trailing: Checkbox(
                                 value: room.presentItems.contains(item),
@@ -129,7 +130,7 @@ class RoomPage extends HookConsumerWidget {
                   ),
                 ],
               )),
-              SizedBox(height: 90)
+              const SizedBox(height: 90)
             ],
           ),
         ));
