@@ -6,10 +6,10 @@ import 'package:room_item_tracker/models/room_item.dart';
 
 abstract class RoomStorageService {
   /// Write rooms to storage.
-  Future<File> writeRooms(List<Room> rooms);
+  Future<void> writeRooms(List<Room> rooms);
 
   /// Write items for a room to storage.
-  Future<File> writeItems(List<RoomItem> roomItems);
+  Future<void> writeItems(List<RoomItem> roomItems);
 
   /// Read list of all items from storage.
   Future<List<RoomItem>> readItems();

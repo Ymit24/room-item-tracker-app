@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:room_item_tracker/injection.dart';
 import 'package:room_item_tracker/pages/rooms/rooms_page.dart';
 import 'package:room_item_tracker/providers.dart';
 
-void main() {
+void main() async {
+  await setupHive();
   setupServiceLocators();
+
   runApp(const ProviderScope(child: RoomItemTrackerApp()));
+}
+
+Future<void> setupHive() async {
+  await Hive.initFlutter();
+  await Hive.openBox('rooms');
+  await Hive.openBox('items');
 }
 
 class RoomItemTrackerApp extends HookConsumerWidget {

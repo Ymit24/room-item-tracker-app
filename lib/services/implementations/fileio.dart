@@ -9,21 +9,21 @@ import 'package:room_item_tracker/services/storage.dart';
 
 class FileBasedRoomStorageService extends RoomStorageService {
   @override
-  Future<File> writeRooms(List<Room> rooms) async {
+  Future<void> writeRooms(List<Room> rooms) async {
     final file = await _roomsFile;
 
     Map<String, dynamic> map = {'rooms': rooms.map((e) => e.toJson()).toList()};
 
-    return file.writeAsString(json.encode(map));
+    await file.writeAsString(json.encode(map));
   }
 
   @override
-  Future<File> writeItems(List<RoomItem> roomItems) async {
+  Future<void> writeItems(List<RoomItem> roomItems) async {
     final file = await _itemsFile;
     Map<String, dynamic> map = {
       'items': roomItems.map((e) => e.toJson()).toList()
     };
-    return file.writeAsString(json.encode(map));
+    await file.writeAsString(json.encode(map));
   }
 
   @override
