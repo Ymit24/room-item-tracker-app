@@ -20,26 +20,28 @@ class HiveBasedStorageService extends RoomStorageService {
     var roomsBox = Hive.box<Room>(_boxNameForRooms);
     final roomsById = roomsBox.toMap();
 
+    print ("Found ${roomsById.length} rooms");
+
     return roomsById.values.toList();
   }
 
   @override
   Future<void> writeItems(List<RoomItem> roomItems) async {
     final roomItemsBox = Hive.box<RoomItem>(_boxNameForRoomItems);
-    roomItemsBox.clear();
+    // await roomItemsBox.clear();
 
     for (final roomItem in roomItems) {
-      roomItemsBox.put(roomItem.id, roomItem);
+      await roomItemsBox.put(roomItem.id, roomItem);
     }
   }
 
   @override
   Future<void> writeRooms(List<Room> rooms) async {
     final roomsBox = Hive.box<Room>(_boxNameForRooms);
-    roomsBox.clear();
+    // await roomsBox.clear();
 
     for (final room in rooms) {
-      roomsBox.put(room.id, room);
+      await roomsBox.put(room.id, room);
     }
   }
 }
