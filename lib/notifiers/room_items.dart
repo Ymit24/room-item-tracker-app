@@ -8,7 +8,7 @@ class RoomItemNotifier extends StateNotifier<List<RoomItem>> {
   final _storageService = locator.get<RoomStorageService>();
   RoomItemNotifier() : super([]);
 
-  void loadFromFile() async {
+  Future<void> loadFromFile() async {
     final result = await _storageService.readItems();
 
     if (result.isEmpty) {
@@ -29,6 +29,14 @@ class RoomItemNotifier extends StateNotifier<List<RoomItem>> {
       for (final it in state)
         if (it != item) it
     ];
+    _storageService.writeItems(state);
+  }
+
+  /// Reset the room state with the seed items.
+  /// Performs a writeback to save the seed items immediately.
+  Future<void> resetWithSeedItems() async {
+    final seedItems = await readSeedItems();
+    state = List.from(seedItems);
     _storageService.writeItems(state);
   }
 }

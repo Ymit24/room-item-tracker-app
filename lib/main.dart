@@ -36,14 +36,12 @@ class RoomItemTrackerApp extends HookConsumerWidget {
       debugShowCheckedModeBanner: false,
       title: 'Room Item Tracker',
       theme: ThemeData(primarySwatch: Colors.blue, brightness: Brightness.dark),
-      home: const SafeArea(child: RoomsPage()),
+      home: const RoomsPage(),
     );
   }
 
   void loadDataFromFile(WidgetRef ref) async {
-    await Future.delayed(const Duration(milliseconds: 10), () {
-      ref.watch(roomsProvider.notifier).loadFromFile();
-      ref.watch(roomItemsProvider.notifier).loadFromFile();
-    });
+    await ref.watch(roomsProvider.notifier).loadFromFile();
+    await ref.watch(roomItemsProvider.notifier).loadFromFile();
   }
 }

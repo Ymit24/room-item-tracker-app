@@ -10,7 +10,7 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
 
   RoomsNotifier() : super([]);
 
-  void loadFromFile() async {
+  Future<void> loadFromFile() async {
     final result = await _storageService.readRooms();
     if (result.isEmpty) {
       state = List.from(seedRooms);
@@ -70,12 +70,12 @@ class RoomsNotifier extends StateNotifier<List<Room>> {
     _storageService.writeRooms(state);
   }
 
-  void clearAllRooms() {
+  Future<void> clearAllRooms() async {
     state = [
       for (final room in state)
         room.copyWith(presentItems: [], status: RoomStatus.Unknown)
     ];
-    _storageService.writeRooms(state);
+    await _storageService.writeRooms(state);
   }
 
   void removeItemFromAllRooms(RoomItem item) {
