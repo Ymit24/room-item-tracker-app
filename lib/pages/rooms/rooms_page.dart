@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:room_item_tracker/bloc/room_items/room_items_bloc.dart';
+import 'package:room_item_tracker/bloc/room_items/room_items_events.dart';
+import 'package:room_item_tracker/bloc/rooms/rooms_bloc.dart';
+import 'package:room_item_tracker/bloc/rooms/rooms_events.dart';
+import 'package:room_item_tracker/bloc/rooms/rooms_state.dart';
 import 'package:room_item_tracker/pages/rooms/widgets/room_entry.dart';
-import 'package:room_item_tracker/utils/providers.dart';
 
-class RoomsPage extends HookConsumerWidget {
+class RoomsPage extends StatelessWidget {
   const RoomsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final rooms = ref.watch(roomsProvider);
+  Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
         child: ListView(
@@ -23,7 +26,7 @@ class RoomsPage extends HookConsumerWidget {
               ),
             ),
             TextButton(
-                onPressed: () => onReseedClick(context, ref),
+                onPressed: () => onReseedClick(context),
                 child: const Text('Full data reset (Reseed item list).'))
           ],
         ),
@@ -32,7 +35,7 @@ class RoomsPage extends HookConsumerWidget {
         title: const Text('Room Item Tracker'),
         actions: [
           IconButton(
-            onPressed: () => clearAllRooms(context, ref),
+            onPressed: () => clearAllRooms(context),
             icon: const Icon(
               Icons.delete_forever,
               color: Colors.red,
@@ -46,11 +49,21 @@ class RoomsPage extends HookConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: rooms.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return RoomEntry(roomId: rooms[index].id);
+                child: BlocBuilder<RoomListBloc, RoomListState>(
+                  builder: (ctx, state) {
+                    if (state is RoomListLoadedData) {
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(8),
+                        itemCount: state.rooms.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return RoomEntry(roomId: state.rooms[index].id);
+                        },
+                      );
+                    } else if (state is RoomListLoading) {
+                      return const CircularProgressIndicator(value: null);
+                    } else {
+                      return Text('Unknown state $state');
+                    }
                   },
                 ),
               ),
@@ -61,7 +74,7 @@ class RoomsPage extends HookConsumerWidget {
     );
   }
 
-  void onReseedClick(BuildContext context, WidgetRef ref) {
+  void onReseedClick(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -70,7 +83,7 @@ class RoomsPage extends HookConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => resetAndReseed(ctx, ref),
+            onPressed: () => resetAndReseed(ctx),
             child: const Text('Yes, RESET.'),
           ),
           TextButton(
@@ -84,31 +97,36 @@ class RoomsPage extends HookConsumerWidget {
     );
   }
 
-  void resetAndReseed(BuildContext context, WidgetRef ref) async {
+  void resetAndReseed(BuildContext context) async {
     Navigator.of(context).pop();
-    await ref.read(roomItemsProvider.notifier).resetWithSeedItems();
-    await ref.read(roomsProvider.notifier).clearAllRooms();
+    final roomListBloc = context.read<RoomListBloc>();
+    final roomItemsListBloc = context.read<RoomItemsListBloc>();
+
+    roomListBloc.add(RoomListClearAllRoomsEvent());
+    roomItemsListBloc.add(RoomItemsListResetWithSeedItemsEvent());
   }
 
-  void clearAllRooms(BuildContext ctx, WidgetRef ref) async {
+  void clearAllRooms(BuildContext ctx) async {
     showDialog(
       barrierDismissible: false,
       context: ctx,
-      builder: (ctx) => AlertDialog(
+      builder: (context) => AlertDialog(
         content: const Text(
           'Are you sure you want to reset ALL room items and statuses?',
         ),
         actions: [
           TextButton(
             onPressed: () async {
-              Navigator.of(ctx).pop();
-              await ref.read(roomsProvider.notifier).clearAllRooms();
+              Navigator.of(context).pop();
+
+              final roomListBloc = context.read<RoomListBloc>();
+              roomListBloc.add(RoomListClearAllRoomsEvent());
             },
             child: const Text('Yes, clear!'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(ctx).pop();
+              Navigator.of(context).pop();
             },
             child: const Text('Cancel'),
           ),
