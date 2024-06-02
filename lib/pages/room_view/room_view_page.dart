@@ -101,7 +101,7 @@ class RoomPage extends StatelessWidget {
                 children: [
                   SizedBox(
                       height: 150,
-                      child: Text("Items: $itemsDisplay",
+                      child: Text("Items: ${}",
                           style: const TextStyle(fontSize: 22),
                           textAlign: TextAlign.left)),
                   Expanded(

@@ -2,12 +2,14 @@ import 'package:bloc/bloc.dart';
 import 'package:room_item_tracker/bloc/room_items/room_items_events.dart';
 import 'package:room_item_tracker/bloc/room_items/room_items_state.dart';
 import 'package:room_item_tracker/models/room_item.dart';
+import 'package:room_item_tracker/services/seed_items.dart';
 import 'package:room_item_tracker/services/storage.dart';
 import 'package:room_item_tracker/utils/injection.dart';
-import 'package:room_item_tracker/utils/seed_items.dart';
 
 class RoomItemsListBloc extends Bloc<RoomItemsListEvent, RoomItemsListState> {
   final _storageService = locator.get<RoomStorageService>();
+  final _seedItemsService = locator.get<SeedItemsService>();
+
   RoomItemsListBloc() : super(RoomItemsListInitial()) {
     on<RoomItemsListLoadEvent>(onLoad);
     on<RoomItemsListAddCustomRoomItemEvent>(onAddCustomRoomItem);
@@ -19,8 +21,9 @@ class RoomItemsListBloc extends Bloc<RoomItemsListEvent, RoomItemsListState> {
       RoomItemsListLoadEvent event, Emitter<RoomItemsListState> emit) async {
     emit(RoomItemsListLoading());
     final result = await _storageService.readItems();
-    final List<RoomItem> loadedItems =
-        result.isEmpty ? List.from(await readSeedItems()) : List.from(result);
+    final List<RoomItem> loadedItems = result.isEmpty
+        ? List.from(await _seedItemsService.getSeedItems())
+        : List.from(result);
 
     emit(RoomItemsListLoadedData(items: loadedItems));
   }
@@ -61,7 +64,7 @@ class RoomItemsListBloc extends Bloc<RoomItemsListEvent, RoomItemsListState> {
   Future<void> onReseedItems(RoomItemsListResetWithSeedItemsEvent event,
       Emitter<RoomItemsListState> emit) async {
     if (state is RoomItemsListLoadedData) {
-      final seedItems = await readSeedItems();
+      final seedItems = await _seedItemsService.getSeedItems();
 
       await _storageService.writeItems(seedItems);
       emit(RoomItemsListLoadedData(items: seedItems));

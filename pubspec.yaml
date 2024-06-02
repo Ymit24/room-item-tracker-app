@@ -30,6 +30,7 @@ environment:
 dependencies:
   bloc: ^8.1.4
   cupertino_icons: ^1.0.8
+  equatable: ^2.0.5
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.5
@@ -38,6 +39,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   hooks_riverpod: ^2.5.1
+  mockito: ^5.4.4
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -55,6 +57,7 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   hive_generator: ^2.0.1
   build_runner: ^2.4.10
+  bloc_test: ^9.1.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
