@@ -11,11 +11,15 @@ class RoomsPage extends HookConsumerWidget {
     final rooms = ref.watch(roomsProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Item Room Tracker'),
+        title: const Text('Room Item Tracker'),
         actions: [
-          ElevatedButton(
-              onPressed: () => clearAllRooms(ref),
-              child: const Text("Clear All Rooms"))
+          IconButton(
+            onPressed: () => clearAllRooms(context, ref),
+            icon: Icon(
+              Icons.delete_forever,
+              color: Colors.red,
+            ),
+          ),
         ],
       ),
       body: Center(
@@ -24,11 +28,12 @@ class RoomsPage extends HookConsumerWidget {
           children: <Widget>[
             Expanded(
               child: ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: rooms.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return RoomEntry(roomId: rooms[index].id);
-                  }),
+                padding: const EdgeInsets.all(8),
+                itemCount: rooms.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return RoomEntry(roomId: rooms[index].id);
+                },
+              ),
             ),
           ],
         ),
@@ -36,7 +41,29 @@ class RoomsPage extends HookConsumerWidget {
     );
   }
 
-  void clearAllRooms(WidgetRef ref) async {
-    ref.read(roomsProvider.notifier).clearAllRooms();
+  void clearAllRooms(BuildContext ctx, WidgetRef ref) async {
+    showDialog(
+      barrierDismissible: false,
+      context: ctx,
+      builder: (ctx) => AlertDialog(
+        content: const Text(
+            'Are you sure you want to reset ALL room items and statuses?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              ref.read(roomsProvider.notifier).clearAllRooms();
+            },
+            child: const Text('Yes, clear!'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 }
