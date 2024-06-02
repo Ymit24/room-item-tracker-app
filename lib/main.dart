@@ -16,9 +16,9 @@ void main() async {
 
 Future<void> setupHive() async {
   await Hive.initFlutter();
-    Hive.registerAdapter(RoomAdapter());
-    Hive.registerAdapter(RoomItemAdapter());
-    Hive.registerAdapter(RoomStatusAdapter());
+  Hive.registerAdapter(RoomAdapter());
+  Hive.registerAdapter(RoomItemAdapter());
+  Hive.registerAdapter(RoomStatusAdapter());
   await Hive.openBox<Room>('rooms');
   await Hive.openBox<RoomItem>('items');
 }

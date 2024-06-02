@@ -20,8 +20,6 @@ class HiveBasedStorageService extends RoomStorageService {
     var roomsBox = Hive.box<Room>(_boxNameForRooms);
     final roomsById = roomsBox.toMap();
 
-    print ("Found ${roomsById.length} rooms");
-
     return roomsById.values.toList();
   }
 
