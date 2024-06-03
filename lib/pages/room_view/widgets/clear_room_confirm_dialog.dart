@@ -21,13 +21,13 @@ class _ClearRoomConfirmDialogState extends State<ClearRoomConfirmDialog> {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
+              widget.onClear();
             },
             child: const Text('Yes, clear!'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              widget.onClear();
             },
             child: const Text('Cancel'),
           ),
