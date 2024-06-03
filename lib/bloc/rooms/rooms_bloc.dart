@@ -117,7 +117,7 @@ class RoomListBloc extends Bloc<RoomListEvent, RoomListState> {
           room.copyWith(presentItems: [], status: RoomStatus.Unknown)
       ];
 
-      await _storageService.writeRooms(loadedDataState.rooms);
+      await _storageService.writeRooms(updatedRoomList);
       emit(RoomListLoadedData(rooms: updatedRoomList));
     }
   }

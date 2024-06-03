@@ -34,11 +34,9 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.5
-  flutter_hooks: ^0.20.5
   get_it: ^7.7.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  hooks_riverpod: ^2.5.1
   mockito: ^5.4.4
 
 

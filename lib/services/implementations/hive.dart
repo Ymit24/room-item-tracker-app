@@ -26,7 +26,7 @@ class HiveBasedStorageService extends RoomStorageService {
   @override
   Future<void> writeItems(List<RoomItem> roomItems) async {
     final roomItemsBox = Hive.box<RoomItem>(_boxNameForRoomItems);
-    // await roomItemsBox.clear();
+    await roomItemsBox.clear();
 
     for (final roomItem in roomItems) {
       await roomItemsBox.put(roomItem.id, roomItem);
@@ -36,7 +36,7 @@ class HiveBasedStorageService extends RoomStorageService {
   @override
   Future<void> writeRooms(List<Room> rooms) async {
     final roomsBox = Hive.box<Room>(_boxNameForRooms);
-    // await roomsBox.clear();
+    await roomsBox.clear();
 
     for (final room in rooms) {
       await roomsBox.put(room.id, room);

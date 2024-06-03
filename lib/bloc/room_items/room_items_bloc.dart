@@ -14,6 +14,7 @@ class RoomItemsListBloc extends Bloc<RoomItemsListEvent, RoomItemsListState> {
     on<RoomItemsListLoadEvent>(onLoad);
     on<RoomItemsListAddCustomRoomItemEvent>(onAddCustomRoomItem);
     on<RoomItemsListRemoveItemEvent>(onRemoveItem);
+    on<RoomItemsListResetWithSeedItemsEvent>(onReseedItems);
   }
 
   /// Load items from storage
@@ -66,6 +67,7 @@ class RoomItemsListBloc extends Bloc<RoomItemsListEvent, RoomItemsListState> {
     if (state is RoomItemsListLoadedData) {
       final seedItems = await _seedItemsService.getSeedItems();
 
+      print('done reseeding items');
       await _storageService.writeItems(seedItems);
       emit(RoomItemsListLoadedData(items: seedItems));
     }
