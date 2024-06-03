@@ -18,24 +18,18 @@ class _ClearRoomConfirmDialogState extends State<ClearRoomConfirmDialog> {
           'Are you sure that you wan\'t to clear all items from the room?',
         ),
         actions: [
-          IconButton(
+          TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
             },
-            icon: const Icon(
-              Icons.cancel,
-              color: Colors.red,
-            ),
+            child: const Text('Yes, clear!'),
           ),
-          IconButton(
+          TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
               widget.onClear();
             },
-            icon: const Icon(
-              Icons.check,
-              color: Colors.green,
-            ),
+            child: const Text('Cancel'),
           ),
         ],
       );
