@@ -7,6 +7,7 @@ import 'package:room_item_tracker/bloc/rooms/rooms_bloc.dart';
 import 'package:room_item_tracker/bloc/rooms/rooms_events.dart';
 import 'package:room_item_tracker/bloc/rooms/rooms_state.dart';
 import 'package:room_item_tracker/models/room_item.dart';
+import 'package:room_item_tracker/pages/room_view/widgets/clear_room_confirm_dialog.dart';
 import 'package:room_item_tracker/pages/room_view/widgets/create_item_dialog.dart';
 import 'package:room_item_tracker/pages/room_view/widgets/room_item_list.dart';
 
@@ -29,11 +30,7 @@ class RoomPage extends StatelessWidget {
                   title: Text(loadedRoom.name),
                   actions: [
                     ElevatedButton(
-                      onPressed: () {
-                        final roomListBloc = ctx.read<RoomListBloc>();
-                        roomListBloc
-                            .add(RoomListClearRoomEvent(roomId: loadedRoom.id));
-                      },
+                      onPressed: () => _onClear(ctx, loadedRoom.id),
                       child: const Text("Clear"),
                     )
                   ],
@@ -147,6 +144,20 @@ class RoomPage extends StatelessWidget {
       );
     }
   }
+}
+
+/// Show dialog to confirm clearing room.
+void _onClear(BuildContext ctx, int roomId) async {
+  final roomListBloc = ctx.read<RoomListBloc>();
+  await showDialog(
+    context: ctx,
+    builder: (ctx) => ClearRoomConfirmDialog(
+      onClear: () {
+        roomListBloc.add(RoomListClearRoomEvent(roomId: roomId));
+      },
+    ),
+    barrierDismissible: true,
+  );
 }
 
 /// Show dialog to create a new item.

@@ -44,7 +44,7 @@ class RoomListBloc extends Bloc<RoomListEvent, RoomListState> {
           else
             room
       ];
-      await _storageService.writeRooms(loadedDataState.rooms);
+      await _storageService.writeRooms(updatedRoomList);
       emit(RoomListLoadedData(rooms: updatedRoomList));
     }
   }
@@ -62,8 +62,8 @@ class RoomListBloc extends Bloc<RoomListEvent, RoomListState> {
             room
       ];
 
-      emit(RoomListLoadedData(rooms: updatedRoomList));
       await _storageService.writeRooms(updatedRoomList);
+      emit(RoomListLoadedData(rooms: updatedRoomList));
     }
   }
 
@@ -83,8 +83,8 @@ class RoomListBloc extends Bloc<RoomListEvent, RoomListState> {
             ])
       ];
 
-      emit(RoomListLoadedData(rooms: updatedRoomList));
       await _storageService.writeRooms(updatedRoomList);
+      emit(RoomListLoadedData(rooms: updatedRoomList));
     }
   }
 
@@ -98,7 +98,7 @@ class RoomListBloc extends Bloc<RoomListEvent, RoomListState> {
           if (room.id == event.roomId) room.copyWith(presentItems: []) else room
       ];
 
-      await _storageService.writeRooms(loadedDataState.rooms);
+      await _storageService.writeRooms(updatedRoomList);
       emit(RoomListLoadedData(rooms: updatedRoomList));
     }
   }
