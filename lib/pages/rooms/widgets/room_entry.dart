@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:room_item_tracker/bloc/rooms/rooms_bloc.dart';
+import 'package:room_item_tracker/bloc/rooms/rooms_events.dart';
 import 'package:room_item_tracker/models/room.dart';
 import 'package:room_item_tracker/pages/room_view/room_view_page.dart';
-import 'package:room_item_tracker/utils/providers.dart';
 
-class RoomEntry extends HookConsumerWidget {
-  final int roomId;
+class RoomEntry extends StatelessWidget {
+  /// The room which this entry represents.
+  final Room room;
 
-  const RoomEntry({super.key, required this.roomId});
+  const RoomEntry({super.key, required this.room});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final room = ref.watch(roomsProvider.notifier).getRoom(roomId)!;
+  Widget build(BuildContext context) {
     var statusColor = room.status == RoomStatus.Checked
         ? Colors.green
         : room.status == RoomStatus.Unchecked
@@ -25,7 +26,7 @@ class RoomEntry extends HookConsumerWidget {
           shape: const CircleBorder(),
           backgroundColor: statusColor,
         ),
-        onPressed: () => toggleRoomStatus(ref),
+        onPressed: () => toggleRoomStatus(context),
       ),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
         ElevatedButton(
@@ -37,12 +38,13 @@ class RoomEntry extends HookConsumerWidget {
     );
   }
 
-  void toggleRoomStatus(WidgetRef ref) {
-    ref.read(roomsProvider.notifier).toggleRoomStatus(roomId);
+  void toggleRoomStatus(BuildContext ctx) {
+    final roomListBloc = ctx.read<RoomListBloc>();
+    roomListBloc.add(RoomListToggleRoomStatusEvent(roomId: room.id));
   }
 
   void viewRoom(BuildContext context) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => RoomPage(roomId: roomId)));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => RoomPage(roomId: room.id)));
   }
 }

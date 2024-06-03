@@ -38,7 +38,7 @@ void main() {
         act: (bloc) => bloc.add(RoomItemsListLoadEvent()),
         skip: 1,
         expect: () => [
-          RoomItemsListLoadedData(
+         RoomItemsListLoadedData(
             items: mockItemList,
           )
         ],

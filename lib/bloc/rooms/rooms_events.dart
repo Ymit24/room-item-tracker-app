@@ -25,14 +25,14 @@ final class RoomListAddItemToRoomEvent extends RoomListEvent {
 }
 
 /// Notify item added to remove.
-final class RoomListRemoveItemToRoomEvent extends RoomListEvent {
+final class RoomListRemoveItemFromRoomEvent extends RoomListEvent {
   /// Id of room where the item has been added.
   final int roomId;
 
   /// The item to add to the room.
   final RoomItem item;
 
-  RoomListRemoveItemToRoomEvent({required this.roomId, required this.item});
+  RoomListRemoveItemFromRoomEvent({required this.roomId, required this.item});
 }
 
 /// Trigger a room to be cleared.

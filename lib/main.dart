@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:room_item_tracker/bloc/room_items/room_items_bloc.dart';
 import 'package:room_item_tracker/bloc/room_items/room_items_events.dart';
-import 'package:room_item_tracker/bloc/room_items/room_items_state.dart';
 import 'package:room_item_tracker/bloc/rooms/rooms_bloc.dart';
 import 'package:room_item_tracker/bloc/rooms/rooms_events.dart';
 import 'package:room_item_tracker/models/room.dart';

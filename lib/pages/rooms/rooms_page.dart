@@ -56,7 +56,7 @@ class RoomsPage extends StatelessWidget {
                         padding: const EdgeInsets.all(8),
                         itemCount: state.rooms.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return RoomEntry(roomId: state.rooms[index].id);
+                          return RoomEntry(room: state.rooms[index]);
                         },
                       );
                     } else if (state is RoomListLoading) {
