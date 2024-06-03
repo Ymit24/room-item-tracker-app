@@ -93,19 +93,23 @@ class RoomPage extends StatelessWidget {
                 ),
               );
             }
+          case RoomListLoading _:
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Loading room...'),
+              ),
+              body: const Center(
+                child: CircularProgressIndicator(
+                  value: null,
+                ),
+              ),
+            );
           case _:
             return Scaffold(
               appBar: AppBar(
-                title: const Text('not loaded.'),
+                title: const Text('Failed to load room.'),
               ),
-              body: Column(
-                children: [
-                  Text('not loaded yet. State: $state'),
-                  const CircularProgressIndicator(
-                    value: null,
-                  )
-                ],
-              ),
+              body: const Text('Failed to load the room.'),
             );
         }
       },
