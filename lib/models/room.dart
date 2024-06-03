@@ -76,4 +76,8 @@ class Room {
         status: status ?? this.status,
         presentItems: presentItems ?? this.presentItems);
   }
+
+  /// Get the room's item display text.
+  String get itemDisplayString => presentItems.fold(
+      '', (a, b) => '$a${a.isEmpty ? '' : ', '}${b.name.trimRight()}');
 }

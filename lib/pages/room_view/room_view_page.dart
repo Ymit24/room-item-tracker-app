@@ -1,163 +1,182 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:room_item_tracker/models/room.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:room_item_tracker/bloc/room_items/room_items_bloc.dart';
+import 'package:room_item_tracker/bloc/room_items/room_items_events.dart';
+import 'package:room_item_tracker/bloc/room_items/room_items_state.dart';
+import 'package:room_item_tracker/bloc/rooms/rooms_bloc.dart';
+import 'package:room_item_tracker/bloc/rooms/rooms_events.dart';
+import 'package:room_item_tracker/bloc/rooms/rooms_state.dart';
 import 'package:room_item_tracker/models/room_item.dart';
-import 'package:room_item_tracker/utils/providers.dart';
+import 'package:room_item_tracker/pages/room_view/widgets/clear_room_confirm_dialog.dart';
+import 'package:room_item_tracker/pages/room_view/widgets/create_item_dialog.dart';
+import 'package:room_item_tracker/pages/room_view/widgets/room_item_list.dart';
 
-/*
- * Find the room using an Id. Will update when the rooms update.
- */
-final currentRoomProvider = Provider.family<Room?, int>((ref, roomId) {
-  final rooms = ref.watch(roomsProvider);
-  for (final room in rooms) {
-    if (room.id == roomId) {
-      return room;
-    }
-  }
-  return null;
-});
-
-class RoomPage extends HookConsumerWidget {
+class RoomPage extends StatelessWidget {
+  /// The id of the current room being viewed.
   final int roomId;
 
   const RoomPage({super.key, required this.roomId});
 
-  void addCustomItem(BuildContext context, WidgetRef ref,
-      TextEditingController controller) async {
-    final result = await showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-              title: const Text("Create Item"),
-              content: TextField(
-                  controller: controller,
-                  decoration:
-                      const InputDecoration(hintText: "Enter Item Name")),
-              actions: [
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(ctx).pop(null);
-                      controller.clear();
-                    },
-                    child: const Text("Cancel")),
-                ElevatedButton(
-                    onPressed: () {
-                      if (controller.text.isEmpty) {
-                        Navigator.of(ctx).pop(null);
-                      } else {
-                        Navigator.of(ctx)
-                            .pop(RoomItem(id: -1, name: controller.text));
-                      }
-                      controller.clear();
-                    },
-                    child: const Text("Create"))
-              ],
-            ),
-        barrierDismissible: true);
-    if (result != null) {
-      ref.read(roomItemsProvider.notifier).addCustomRoomItem(result);
-    }
-  }
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final controller = useTextEditingController();
-    final allRoomItems = ref.watch(roomItemsProvider);
-
-    final roomResult = ref.watch(currentRoomProvider(roomId));
-
-    if (roomResult == null) {
-      return Scaffold(
-          appBar: AppBar(title: const Text("Failed to load Room.")),
-          body: const Center(child: Text("Failed to load Room.")));
-    }
-
-    final room = roomResult;
-
-    final itemsDisplay = room.presentItems
-        .fold("", (a, b) => "$a${a.isEmpty ? "" : ", "}${b.name}");
-
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(room.name),
-          actions: [
-            ElevatedButton(
-                onPressed: () => clearRoom(ref), child: const Text("Clear"))
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => addCustomItem(context, ref, controller),
-          tooltip: 'Add Custom Item',
-          child: const Icon(Icons.add),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              SizedBox(
-                  height: 150,
-                  child: Text("Items: $itemsDisplay",
-                      style: const TextStyle(fontSize: 22),
-                      textAlign: TextAlign.left)),
-              Expanded(
+  Widget build(BuildContext ctx) {
+    return BlocBuilder<RoomListBloc, RoomListState>(
+      builder: (ctx, state) {
+        switch (state) {
+          case RoomListLoadedData loadedData:
+            {
+              final loadedRoom = loadedData.getRoom(roomId)!;
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text(loadedRoom.name),
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () => _onClear(ctx, loadedRoom.id),
+                      child: const Text("Clear"),
+                    )
+                  ],
+                ),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () => _addCustomItem(ctx),
+                  tooltip: 'Add Custom Item',
+                  child: const Icon(Icons.add),
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Room Items",
-                    style: TextStyle(fontSize: 22),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 150,
+                        child: Text(
+                          "Items: ${loadedRoom.itemDisplayString}",
+                          style: const TextStyle(fontSize: 22),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      Expanded(
+                          child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Room Items",
+                            style: TextStyle(fontSize: 22),
+                          ),
+                          Expanded(
+                            child: BlocBuilder<RoomItemsListBloc,
+                                    RoomItemsListState>(
+                                builder: (ctx, state) => switch (state) {
+                                      RoomItemsListLoadedData(
+                                        items: final allRoomItems
+                                      ) =>
+                                        RoomItemList(
+                                          allRoomItems: allRoomItems,
+                                          currentRoom: loadedRoom,
+                                          onDeleteItem: (item) =>
+                                              _onDeleteItem(ctx, item),
+                                          onToggleItem: (item, isChecked) =>
+                                              _onToggleItem(
+                                                  ctx, item, isChecked),
+                                        ),
+                                      _ => const CircularProgressIndicator(
+                                          value: null,
+                                        )
+                                    }),
+                          ),
+                        ],
+                      )),
+                      const SizedBox(height: 90)
+                    ],
                   ),
-                  Expanded(
-                    child: ListView.builder(
-                        padding: const EdgeInsets.all(8),
-                        itemCount: allRoomItems.length,
-                        itemBuilder: (context, index) {
-                          final item = allRoomItems[index];
-                          return ListTile(
-                            title: Text(item.name),
-                            leading: ElevatedButton(
-                              style: buildStyleFrom(),
-                              onPressed: () => deleteItem(ref, item),
-                              child:
-                                  const Icon(Icons.delete, color: Colors.white),
-                            ),
-                            trailing: Checkbox(
-                                value: room.presentItems.contains(item),
-                                onChanged: (isNowChecked) => checkItem(
-                                    ref, isNowChecked ?? false, item)),
-                          );
-                        }),
-                  ),
-                ],
-              )),
-              const SizedBox(height: 90)
-            ],
-          ),
-        ));
-  }
-
-  ButtonStyle buildStyleFrom() {
-    return ElevatedButton.styleFrom(
-      backgroundColor: Colors.red,
+                ),
+              );
+            }
+          case RoomListLoading _:
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Loading room...'),
+              ),
+              body: const Center(
+                child: CircularProgressIndicator(
+                  value: null,
+                ),
+              ),
+            );
+          case _:
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Failed to load room.'),
+              ),
+              body: const Text('Failed to load the room.'),
+            );
+        }
+      },
     );
   }
 
-  void checkItem(WidgetRef ref, bool isNowChecked, RoomItem item) {
-    final notifier = ref.read(roomsProvider.notifier);
-    if (isNowChecked) {
-      notifier.addItemToRoom(roomId, item);
+  /// Delete the item from the item list.
+  _onDeleteItem(BuildContext ctx, RoomItem item) {
+    final roomListBloc = ctx.read<RoomListBloc>();
+    final roomItemsListBloc = ctx.read<RoomItemsListBloc>();
+    roomListBloc.add(
+      RoomListRemoveItemFromAllRoomsEvent(item: item),
+    );
+    roomItemsListBloc.add(
+      RoomItemsListRemoveItemEvent(item: item),
+    );
+  }
+
+  /// Toggle the presence of an item in the room.
+  _onToggleItem(BuildContext ctx, RoomItem item, bool isChecked) {
+    final roomListBloc = ctx.read<RoomListBloc>();
+    if (isChecked) {
+      roomListBloc.add(
+        RoomListAddItemToRoomEvent(
+          roomId: roomId,
+          item: item,
+        ),
+      );
     } else {
-      notifier.removeItemFromRoom(roomId, item);
+      roomListBloc.add(
+        RoomListRemoveItemFromRoomEvent(
+          roomId: roomId,
+          item: item,
+        ),
+      );
     }
   }
+}
 
-  void clearRoom(WidgetRef ref) {
-    ref.read(roomsProvider.notifier).clearRoom(roomId);
-  }
+/// Show dialog to confirm clearing room.
+void _onClear(BuildContext ctx, int roomId) async {
+  final roomListBloc = ctx.read<RoomListBloc>();
+  await showDialog(
+    context: ctx,
+    builder: (ctx) => ClearRoomConfirmDialog(
+      onClear: () {
+        roomListBloc.add(RoomListClearRoomEvent(roomId: roomId));
+      },
+    ),
+    barrierDismissible: true,
+  );
+}
 
-  void deleteItem(WidgetRef ref, RoomItem item) {
-    ref.read(roomItemsProvider.notifier).removeItem(item);
-
-    ref.read(roomsProvider.notifier).removeItemFromAllRooms(item);
-  }
+/// Show dialog to create a new item.
+void _addCustomItem(BuildContext ctx) async {
+  final roomItemsListBloc = ctx.read<RoomItemsListBloc>();
+  await showDialog(
+    context: ctx,
+    barrierDismissible: false,
+    builder: (ctx) => CreateItemDialog(
+      onCreate: (String itemName) {
+        ScaffoldMessenger.of(ctx).showSnackBar(
+            SnackBar(content: Text('Created item \'$itemName\'')));
+        Navigator.of(ctx).pop();
+        roomItemsListBloc.add(
+          RoomItemsListAddCustomRoomItemEvent(
+            item: RoomItem(id: -1, name: itemName),
+          ),
+        );
+      },
+    ),
+  );
 }
