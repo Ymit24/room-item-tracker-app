@@ -52,7 +52,6 @@ class RoomListBloc extends Bloc<RoomListEvent, RoomListState> {
   /// Add an item to the room, save to storage, and emit loaded.
   Future<void> onAddItemToRoom(
       RoomListAddItemToRoomEvent event, Emitter<RoomListState> emit) async {
-    print('adding an item to a room! $state');
     if (state is RoomListLoadedData) {
       final loadedDataState = state as RoomListLoadedData;
       final updatedRoomList = [
@@ -71,7 +70,6 @@ class RoomListBloc extends Bloc<RoomListEvent, RoomListState> {
   /// Remove an item to the room, save to storage, and emit loaded.
   Future<void> onRemoveItemFromRoom(RoomListRemoveItemFromRoomEvent event,
       Emitter<RoomListState> emit) async {
-    print('Removing item from room! State: $state');
     if (state is RoomListLoadedData) {
       final loadedRooms = (state as RoomListLoadedData).rooms;
       final updatedRoomList = [
@@ -84,8 +82,6 @@ class RoomListBloc extends Bloc<RoomListEvent, RoomListState> {
                 if (it != event.item) it
             ])
       ];
-
-      print("UpdatedRoomList: $updatedRoomList");
 
       emit(RoomListLoadedData(rooms: updatedRoomList));
       await _storageService.writeRooms(updatedRoomList);

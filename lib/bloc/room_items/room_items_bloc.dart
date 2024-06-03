@@ -67,7 +67,6 @@ class RoomItemsListBloc extends Bloc<RoomItemsListEvent, RoomItemsListState> {
     if (state is RoomItemsListLoadedData) {
       final seedItems = await _seedItemsService.getSeedItems();
 
-      print('done reseeding items');
       await _storageService.writeItems(seedItems);
       emit(RoomItemsListLoadedData(items: seedItems));
     }
