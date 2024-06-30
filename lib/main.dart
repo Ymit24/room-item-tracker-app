@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:room_item_tracker/bloc/room_items/room_items_bloc.dart';
@@ -51,10 +51,10 @@ class RoomItemTrackerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return CupertinoApp(
       debugShowCheckedModeBanner: false,
       title: 'Room Item Tracker',
-      theme: ThemeData(primarySwatch: Colors.blue, brightness: Brightness.dark),
+      theme: CupertinoThemeData(brightness: Brightness.light),
       home: const RoomsPage(),
     );
   }
